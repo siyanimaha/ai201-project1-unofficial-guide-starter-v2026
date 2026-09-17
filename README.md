@@ -70,11 +70,28 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
 ## Sample Answer
 
-Question: What food is worth getting at Verrill Street Grill?
+**Question:** What food is worth getting at Verrill Street Grill?
 
-The closest retrieved source was `dining_verrill_street_grill.txt` with a distance of 0.4494. The second result was `dining_verrill_street_grill_followup.txt` with a distance of 0.4879. The best result was below the current relevance cutoff of 0.6, so the question passed the relevance gate.
+**Answer:** The food worth going for at Verrill Street Grill is the burger, which is the only late-night hot food on campus.
 
-Source: `dining_verrill_street_grill.txt`
+**Source:** `dining_verrill_street_grill.txt`
+
+**Relevance cutoff:** 0.6
+
+I kept the cutoff at 0.6 because the five in-corpus questions had best distances from 0.172 to 0.449, while the five out-of-scope questions had best distances from 0.807 to 0.899. There is a clear gap between the two groups, and 0.6 falls inside that gap.
+
+| Question | In corpus? | Best distance |
+|---|---|---:|
+| What food is worth getting at Verrill Street Grill? | Yes | 0.449 |
+| How long can the wait be at Verrill Street Grill on Friday evenings? | Yes | 0.172 |
+| When is the best time to eat at North Kitchen between classes? | Yes | 0.267 |
+| What food is worth getting at Halden Hall? | Yes | 0.391 |
+| What time does Halden Hall close? | Yes | 0.323 |
+| Who won the 2018 FIFA World Cup? | No | 0.879 |
+| What is the boiling point of mercury? | No | 0.807 |
+| How do I replace the alternator in a 2014 Honda Civic? | No | 0.899 |
+| What is the capital of Burkina Faso? | No | 0.859 |
+| How many moons does Neptune have? | No | 0.835 |
 
 ## How I Used AI
 
