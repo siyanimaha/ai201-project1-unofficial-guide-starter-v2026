@@ -1,129 +1,86 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
-
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
-
----
-
-# Unit 1
+Siyani Mahadevan — Corpus: campus_life
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+The Unofficial Guide is a RAG system that answers questions using student-written campus life documents. I used the campus_life corpus, which contains information about dining, housing, courses, and campus procedures. The system retrieves relevant documents and uses them to produce grounded answers. It also uses a relevance gate to avoid answering questions when the documents do not contain enough information.
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+The campus_life corpus contains 88 documents with 27,908 total characters. The starter produced 88 chunks with an average length of 317 characters, a shortest chunk of 178 characters, and a longest chunk of 549 characters.
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
-
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
-
-     Milestone 3. -->
+I attempted to replace the starter chunker with my own strategy, but my implementation caused syntax and formatting errors. I restored the starter chunker so the pipeline would remain functional. The current function is `chunker.py::fallback_split`. For this corpus, keeping the short student posts together works reasonably well because most posts contain one focused topic and can stand on their own.
 
 ## Sample Chunks
 
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
+### Chunk 1
+Source: `admin_add_drop_deadline.txt#0`
+Function: `chunker.py::fallback_split`
 
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
+On the add/drop deadline
 
-     Milestone 3. -->
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
 
-**Chunk 1** — source: `` — produced by: ``
+### Chunk 2
+Source: `course_biol_160.txt#0`
+Function: `chunker.py::fallback_split`
 
-```
-```
+BIOL 160 Cell Biology
 
-**Chunk 2** — source: `` — produced by: ``
+I lived here my sophomore year. Format is lecture three times a week with a weekly lab. Assessment: four unit tests and a cumulative final. Not curved.
 
-```
-```
+Expect 9 to 11 hours a week, the heaviest first-year course by reputation.
 
-**Chunk 3** — source: `` — produced by: ``
+The one piece of advice: the unit tests come fast, roughly every three weeks; falling behind once is very hard to recover from.
 
-```
-```
+### Chunk 3
+Source: `course_hist_118_workload.txt#0`
+Function: `chunker.py::fallback_split`
 
-**Chunk 4** — source: `` — produced by: ``
+Workload for HIST 118 Modern World History
 
-```
-```
+People keep asking so: a lot of reading, about 120 pages a week, but no problem sets. That's real time, not optimistic time.
 
-**Chunk 5** — source: `` — produced by: ``
+It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
 
-```
-```
+### Chunk 4
+Source: `dining_pellew_dining_hall_followup.txt#0`
+Function: `chunker.py::fallback_split`
+
+Re: Pellew Dining Hall
+
+Adding to what people have said about Pellew Dining Hall. The wait figure of 12 to 18 minutes at peak matches what I've seen. If you're trying to eat between classes, go before 11:45 and it's a different building entirely.
+
+Also worth saying: the furthest hall from anywhere, next to the athletics centre. Nobody tells you this at orientation.
+
+### Chunk 5
+Source: `housing_innisfree_hall.txt#0`
+Function: `chunker.py::fallback_split`
+
+Innisfree Hall — what it's actually like
+
+Transferred in last year, so take this with a grain of salt. Built 1991, renovated 2022. Rooms are doubles arranged as pairs sharing one bathroom between two rooms.
+
+The good: the shared-bathroom-between-two-rooms arrangement is the best compromise on campus.
+
+The bad: no air conditioning, which matters for the first three weeks of September.
+
+Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building is L-shaped and the short wing is much quieter.
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
+Question: What food is worth getting at Verrill Street Grill?
 
-**Question:**
+The closest retrieved source was `dining_verrill_street_grill.txt` with a distance of 0.4494. The second result was `dining_verrill_street_grill_followup.txt` with a distance of 0.4879. The best result was below the current relevance cutoff of 0.6, so the question passed the relevance gate.
 
-**Answer:**
-
-```
-```
-
-**My relevance cutoff:**
-
-<!-- The number you set in config.py, and how you got there.
-
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
-
-| Question | In corpus? | Best distance |
-|---|---|---|
-|  |  |  |
+Source: `dining_verrill_street_grill.txt`
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1.** I used AI to help debug my project environment after the test showed that my Python version was too old. I installed Python 3.11, recreated the virtual environment, reinstalled the requirements, and reran the test until all 10 checks passed.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
-
-<!-- ── Stretch features ─────────────────────────────────────────────────────
-     Doing one? Say so here BEFORE you start. A feature this README never
-     claims earns nothing.
-     ───────────────────────────────────────────────────────────────────────── -->
+**2.** I used AI while attempting to replace the starter chunker. My first attempt caused indentation and triple-quoted-string syntax errors. I restored the starter implementation instead of leaving the project broken and documented why I kept `chunker.py::fallback_split`.
 
 ---
 
