@@ -22,7 +22,7 @@ names a target of "4 of 5", and four of three is not a thing.
 """
 
 QUESTIONS = [
-    # {"question": "What food is worth getting at Verrill Street Grill?", "expects": "burger"},
+{"question": "What food is worth getting at Verrill Street Grill?", "expects": "burger"},
 {"question": "How long can the wait be at Verrill Street Grill on Friday evenings?", "expects": "30 minutes"},
 {"question": "When is the best time to eat at North Kitchen between classes?", "expects": "11:45"},
 {"question": "What food is worth getting at Halden Hall?", "expects": "soup"},

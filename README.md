@@ -103,117 +103,118 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
 
 # Unit 2
 
-<!-- These sections get ADDED to what's already above. Don't delete or rewrite
-     unit 1 — the point is that someone can see what you said before you knew
-     how it went. -->
-
 ## Run Log — Before
-
-<!-- Your five criteria, three runs each. `python run_eval.py --label before`
-     runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
-     writes it all into results/ for you. Targets come from criteria.md; the
-     verdict column is your call.
-
-     Criterion 3 is measured in one deterministic pass rather than three, so
-     the same number goes in all three run columns. That's correct, not lazy.
-
-     Milestone 1. -->
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+| 2. Every answer names a source | 5 of 5 | N/A | N/A | N/A | Not evaluated |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+| 4. Chunks are between 150 and 600 characters | 80% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | N/A | N/A | N/A | Not evaluated |
 
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+The corpus loaded 88 documents and produced 88 chunks using
+`chunker.py::fallback_split`. The shortest chunk was 178 characters and the
+longest was 549 characters. Therefore, all 88 chunks were within my target
+range of 150 to 600 characters.
+
+I attempted to run `python run_eval.py --label before`, but the generation
+stage repeatedly returned `503 UNAVAILABLE` from the Gemini API because the
+model was experiencing high demand. I also tried an available Gemini model.
+It worked for a simple API request, but the evaluation later returned
+`429 RESOURCE_EXHAUSTED` after the free-tier request quota was reached.
+
+Because the evaluation stopped before completing, no evaluation files were
+written to `results/`. I marked the criteria that require completed generated
+answers as not evaluated instead of inventing results.
 
 ## Verdicts
 
-<!-- MET or MISSED for each of the five, against the target you wrote last
-     unit — not a new one. Plus a sentence on how you decided. That sentence
-     matters most where it was close.
-
-     If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
-     The target has to hold, not show up occasionally.
-
-     Milestone 2. -->
-
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | Not evaluated | The generation-dependent evaluation did not complete, so I did not have three real runs to compare with the 4-of-5 target. |
+| 2 | Every answer names a source | Not evaluated | The API failure prevented the required answer runs from completing. |
+| 3 | Gate stops out-of-corpus questions | Not evaluated | I did not receive a completed evaluation file containing the required gate results. |
+| 4 | Chunks are between 150 and 600 characters | MET | All 88 chunks were between 178 and 549 characters, so 100% met the 150–600 character requirement, exceeding my 80% target. |
+| 5 | Answers use retrieved information | Not evaluated | The generated-answer evaluation did not complete, so I could not honestly compare the answers with the expected facts. |
 
 ## Diagnoses
 
-<!-- For each miss: which stage caused it, and how. The stage alone isn't
-     enough — you need the mechanism.
+The loading, chunking, embedding, and vector-store stages completed
+successfully. The corpus loaded 88 documents and produced 88 chunks, and the
+embedding model and vector store passed their setup checks.
 
-     Not a diagnosis: "Question 3 didn't work."
-     A diagnosis:     "Question 3 asks about laundry costs. The answer is in
-                       one sentence that got split across two chunks, so
-                       neither chunk on its own contains it."
+The blocker occurred at the generation stage. Gemini repeatedly returned
+`503 UNAVAILABLE` because of high demand. After I found a model that could
+successfully answer a simple request, repeated evaluation attempts eventually
+returned `429 RESOURCE_EXHAUSTED` because the free-tier request quota was
+reached.
 
-     The five stages: loading → chunking → embedding → retrieval → generation.
-
-     Look for a pattern. If three misses all ask about numbers, that's one
-     problem, not three.
-
-     Missed nothing? Say so, then say honestly whether your targets were set
-     low, and which one you'd tighten and to what.
-
-     Milestone 3. -->
+This means I do not have enough completed evaluation output to claim that a
+specific question failed because of chunking, embedding, or retrieval. The
+chunk-size criterion is the one criterion I could verify independently: all
+88 chunks were between 178 and 549 characters.
 
 ## The Improvement
 
 **What I changed:**
 
+I tested another Gemini model available to my API key after the original
+model repeatedly returned 503 errors. I kept the corpus, chunking strategy,
+embeddings, and retrieval pipeline unchanged because I did not have a
+completed baseline evaluation showing that one of those stages was causing
+the problem.
+
 **Why I picked it:**
 
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+My diagnosis showed that the immediate failure occurred during generation,
+not during loading, chunking, or embedding. Changing the model configuration
+was therefore the most directly related troubleshooting step I could test
+without making an unsupported change to the RAG pipeline.
 
 ### Run Log — After
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+| 2. Every answer names a source | 5 of 5 | N/A | N/A | N/A | Not evaluated |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+| 4. Chunks are between 150 and 600 characters | 80% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | N/A | N/A | N/A | Not evaluated |
 
 **Did it help?**
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
-
-     Milestone 4. -->
+The model change helped partially because I was able to successfully make a
+simple generation request with the alternate model. However, I cannot claim
+that it improved the RAG system because the complete before and after
+evaluations did not finish. The API later reached its free-tier quota before
+I could collect the required runs.
 
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
+Criteria 1, 2, 3, and 5 still need complete evaluation runs. The system
+successfully loads and chunks the corpus, creates embeddings, and uses the
+vector store, but I could not collect the required generation results because
+of API availability and quota limits.
 
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
+If I had additional API availability, I would first complete the three
+baseline runs. I would then use the actual misses to identify whether the
+problem was retrieval or generation, make one evidence-based change, and run
+the three after evaluations using the same criteria.
 
-     Milestone 5. -->
+I stopped at this point because I ran out of available free-tier API requests
+and submission time. I chose to report the incomplete evaluation rather than
+fill the tables with results my system did not actually produce.
 
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
+I would make criterion 4 more demanding. My original target required 80% of
+chunks to be between 150 and 600 characters, but all 88 chunks already met
+that target. Knowing this now, I would use a narrower range or a criterion
+that measures whether each chunk preserves enough context for retrieval,
+rather than relying mainly on character length.
 
-     Milestone 5. -->
+I would also begin the repeated evaluation runs earlier. The assignment
+requires multiple model calls, so leaving the evaluation close to the
+submission deadline made temporary API availability and free-tier quota
+limits much more significant.
