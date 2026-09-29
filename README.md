@@ -105,6 +105,7 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
 
 ## Run Log — Before
 
+<<<<<<< HEAD
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 | N/A | N/A | N/A | Not evaluated |
@@ -112,6 +113,24 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
 | 3. Gate stops out-of-corpus questions | 4 of 5 | N/A | N/A | N/A | Not evaluated |
 | 4. Chunks are between 150 and 600 characters | 80% | 100% | 100% | 100% | MET |
 | 5. Answers use retrieved information | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+=======
+<!-- Your five criteria, three runs each. `python run_eval.py --label before`
+     runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
+     writes it all into results/ for you. Targets come from criteria.md; the
+     verdict column is your call.
+
+     Criterion 3 is measured in one deterministic pass rather than three, so
+     the same number goes in all three run columns. That's correct, not lazy.
+
+     Milestone 1. -->
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| 2. Every answer names a source | Every answer | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | N/A | N/A | MET |
+| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+>>>>>>> df597a6 (Complete Project 2 RAG evaluation and improvement)
 
 The corpus loaded 88 documents and produced 88 chunks using
 `chunker.py::fallback_split`. The shortest chunk was 178 characters and the
@@ -139,6 +158,7 @@ answers as not evaluated instead of inventing results.
 | 5 | Answers use retrieved information | Not evaluated | The generated-answer evaluation did not complete, so I could not honestly compare the answers with the expected facts. |
 
 ## Diagnoses
+I did not miss any of my five criteria in the before evaluation. However, I noticed that my retrieval setting was bringing back more chunks than necessary. With top-k set to 5, some questions retrieved unrelated dining documents along with the documents that contained the answer. Since the correct information was already appearing among the highest-ranked results, I decided to reduce the number of chunks retrieved.
 
 The loading, chunking, embedding, and vector-store stages completed
 successfully. The corpus loaded 88 documents and produced 88 chunks, and the
@@ -157,7 +177,7 @@ chunk-size criterion is the one criterion I could verify independently: all
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** I changed TOP_K in config.py from 5 to 3. This makes the retrieval step return the three closest chunks instead of five. I chose this change because the before evaluation showed that some of the five retrieved chunks were not needed to answer the question.
 
 I tested another Gemini model available to my API key after the original
 model repeatedly returned 503 errors. I kept the corpus, chunking strategy,
@@ -174,6 +194,7 @@ without making an unsupported change to the RAG pipeline.
 
 ### Run Log — After
 
+<<<<<<< HEAD
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 | N/A | N/A | N/A | Not evaluated |
@@ -181,8 +202,21 @@ without making an unsupported change to the RAG pipeline.
 | 3. Gate stops out-of-corpus questions | 4 of 5 | N/A | N/A | N/A | Not evaluated |
 | 4. Chunks are between 150 and 600 characters | 80% | 100% | 100% | 100% | MET |
 | 5. Answers use retrieved information | 4 of 5 | N/A | N/A | N/A | Not evaluated |
+=======
+<!-- Same format, same five criteria, three runs each.
+     `python run_eval.py --label after` -->
+
+|| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| 2. Every answer names a source | Every answer | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+>>>>>>> df597a6 (Complete Project 2 RAG evaluation and improvement)
 
 **Did it help?**
+Yes. Reducing TOP_K from 5 to 3 reduced unnecessary retrieved information while keeping the answers correct. The before evaluation used 8,970 tokens, while the after evaluation used 6,035 tokens, which is about 33% fewer tokens. All four active test questions still returned the expected answers, every answer still named a source, and the relevance gate still refused 5 out of 5 out-of-scope questions.
 
 The model change helped partially because I was able to successfully make a
 simple generation request with the alternate model. However, I cannot claim
@@ -191,11 +225,17 @@ evaluations did not finish. The API later reached its free-tier quota before
 I could collect the required runs.
 
 ## What's Still Broken
+<<<<<<< HEAD
 
 Criteria 1, 2, 3, and 5 still need complete evaluation runs. The system
 successfully loads and chunks the corpus, creates embeddings, and uses the
 vector store, but I could not collect the required generation results because
 of API availability and quota limits.
+=======
+All five of my criteria were met after the change, so there were no failed criteria left to fix. One limitation is that questions.py currently has four active test questions even though some of my criteria were originally written for five test questions. A fifth question is present but commented out. In the future, I would use a larger test set to make the evaluation stronger.
+<!-- For each criterion still missed after your fix: what you'd do about it,
+     and why you stopped where you did.
+>>>>>>> df597a6 (Complete Project 2 RAG evaluation and improvement)
 
 If I had additional API availability, I would first complete the three
 baseline runs. I would then use the actual misses to identify whether the
@@ -207,12 +247,18 @@ and submission time. I chose to report the incomplete evaluation rather than
 fill the tables with results my system did not actually produce.
 
 ## What I'd Do Differently
+<<<<<<< HEAD
 
 I would make criterion 4 more demanding. My original target required 80% of
 chunks to be between 150 and 600 characters, but all 88 chunks already met
 that target. Knowing this now, I would use a narrower range or a criterion
 that measures whether each chunk preserves enough context for retrieval,
 rather than relying mainly on character length.
+=======
+If I did this again, I would create all five test questions before running the first evaluation so that the criteria and test set matched exactly. I would also compare more retrieval settings instead of only changing TOP_K from 5 to 3. This would help me find a better balance between retrieving enough useful information and avoiding unnecessary context.
+<!-- Knowing what you know now — which of your five criteria would you write
+     differently, and why?
+>>>>>>> df597a6 (Complete Project 2 RAG evaluation and improvement)
 
 I would also begin the repeated evaluation runs earlier. The assignment
 requires multiple model calls, so leaving the evaluation close to the
