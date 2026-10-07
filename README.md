@@ -118,13 +118,13 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
      the same number goes in all three run columns. That's correct, not lazy.
 
      Milestone 1. -->
-| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
-|---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
-| 2. Every answer names a source | Every answer | 4 of 4 | 4 of 4 | 4 of 4 | MET |
-| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
-| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | MET |
-| 5. Answers use retrieved information | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 | Verdict |
+|---|---|---|---|---|---|---|---|
+| 1. Retrieved chunks contain the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | Every answer | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 3. Out-of-scope questions are refused | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
@@ -143,14 +143,14 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunks contain the answer | MET | All 5 test questions retrieved chunks containing the expected information. |
+| 2 | Every answer names a source | MET | The generated answers named at least one source document. |
+| 3 | Out-of-scope questions are refused | MET | The relevance gate refused all 5 out-of-scope questions. |
+| 4 | Chunk sizes stay appropriate | MET | All 88 chunks were between 150 and 600 characters, which is 100%. |
+| 5 | Answers use retrieved information | MET | All 5 test questions included the expected fact in the generated answers across the evaluation runs. |
+## DiagnosesAll five criteria were met in the before evaluation, so I did not find a failed stage in the pipeline to diagnose. The results were consistent across the five runs, and all five test questions returned the expected information.
 
-## Diagnoses
-I did not miss any of my five criteria in the before evaluation. However, I noticed that my retrieval setting was bringing back more chunks than necessary. With top-k set to 5, some questions retrieved unrelated dining documents along with the documents that contained the answer. Since the correct information was already appearing among the highest-ranked results, I decided to reduce the number of chunks retrieved.
+Since none of the criteria were missed, I would tighten Criterion 1. Instead of requiring the correct information to be retrieved for at least 4 of 5 questions, I would require 5 of 5. The system already reached 5 of 5 in this evaluation, so this would be a stronger target for future testing.
 
 <!-- For each miss: which stage caused it, and how. The stage alone isn't
      enough — you need the mechanism.
@@ -172,9 +172,9 @@ I did not miss any of my five criteria in the before evaluation. However, I noti
 
 ## The Improvement
 
-**What I changed:** I changed TOP_K in config.py from 5 to 3. This makes the retrieval step return the three closest chunks instead of five. I chose this change because the before evaluation showed that some of the five retrieved chunks were not needed to answer the question.
+**What I changed:** I added a 5-second delay between evaluation runs in run_eval.py. When I first tried to run five trials for each question, the evaluation hit the Gemini API rate limit and stopped with a 429 RESOURCE_EXHAUSTED error. Adding the delay allowed the full evaluation to finish without exceeding the request limit.
 
-**Why I picked it:**
+**Why I picked it:** All five of my quality criteria were already met, but the evaluation process itself was not reliable because it could stop before completing all five runs. I chose this improvement so the full evaluation could run successfully and produce complete evidence.
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
@@ -184,16 +184,16 @@ I did not miss any of my five criteria in the before evaluation. However, I noti
 <!-- Same format, same five criteria, three runs each.
      `python run_eval.py --label after` -->
 
-|| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
-|---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
-| 2. Every answer names a source | Every answer | 4 of 4 | 4 of 4 | 4 of 4 | MET |
-| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
-| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | MET |
-| 5. Answers use retrieved information | 4 of 5 | 4 of 4 | 4 of 4 | 4 of 4 | MET |
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 | Verdict |
+|---|---|---|---|---|---|---|---|
+| 1. Retrieved chunks contain the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | Every answer | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 3. Out-of-scope questions are refused | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunk sizes stay appropriate | At least 80% | 100% | 100% | 100% | 100% | 100% | MET |
+| 5. Answers use retrieved information | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
 **Did it help?**
-Yes. Reducing TOP_K from 5 to 3 reduced unnecessary retrieved information while keeping the answers correct. The before evaluation used 8,970 tokens, while the after evaluation used 6,035 tokens, which is about 33% fewer tokens. All four active test questions still returned the expected answers, every answer still named a source, and the relevance gate still refused 5 out of 5 out-of-scope questions.
+Yes. The 5-second delay made the evaluation more reliable. Before adding the delay, the five-run evaluation stopped because the Gemini API returned a 429 RESOURCE_EXHAUSTED rate-limit error. After adding the delay, the evaluation completed all 25 model calls and produced the full after-run results. The quality results stayed consistent, with all five criteria still met.
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
@@ -201,9 +201,24 @@ Yes. Reducing TOP_K from 5 to 3 reduced unnecessary retrieved information while 
      tell.
 
      Milestone 4. -->
+## MCP Tool
 
+I moved the campus guide search capability into an MCP tool named `search_listings` in `mcp_server.py`. The tool accepts a question, top-k value, and optional corpus, then uses the existing search system and returns the matching text, source, label, and distance.
+
+I tested the MCP connection with `mcp_client.py`. The client successfully discovered the `search_listings` tool and called it with the question "Where can I study on campus?" The tool returned structured search results without an error.
+
+## Agent Loop Trace
+
+I added tracing so I could see what happened during each step of the pipeline. For the question "How much does laundry cost in Aldridge Hall?" the trace showed:
+
+- Search found 3 results.
+- The relevance gate passed with a best distance of 0.247 and a cutoff of 0.6.
+- The model was called using the 3 retrieved chunks.
+- The final answer said that laundry costs $1.75 for a wash and $1.50 for a dry.
+
+This trace helped me see the path from retrieval to the relevance gate and then to generation.
 ## What's Still Broken
-All five of my criteria were met after the change, so there were no failed criteria left to fix. One limitation is that questions.py currently has four active test questions even though some of my criteria were originally written for five test questions. A fifth question is present but commented out. In the future, I would use a larger test set to make the evaluation stronger.
+All five criteria were still met after the improvement, so there were no failed criteria left to fix. One limitation is that the evaluation only uses five test questions from the campus_life corpus. A larger and more varied set of questions would provide stronger evidence that the system works consistently. I stopped here because the current evaluation met all five targets and completed successfully.
 <!-- For each criterion still missed after your fix: what you'd do about it,
      and why you stopped where you did.
 
@@ -213,7 +228,7 @@ All five of my criteria were met after the change, so there were no failed crite
      Milestone 5. -->
 
 ## What I'd Do Differently
-If I did this again, I would create all five test questions before running the first evaluation so that the criteria and test set matched exactly. I would also compare more retrieval settings instead of only changing TOP_K from 5 to 3. This would help me find a better balance between retrieving enough useful information and avoiding unnecessary context.
+If I did this again, I would use a larger and more varied test set instead of only five questions. I would also make Criterion 1 stricter by requiring the correct information to be retrieved for 5 out of 5 questions instead of 4 out of 5. This would make the evaluation stronger and give me more confidence that the system works consistently.
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 

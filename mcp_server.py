@@ -23,6 +23,7 @@ def search_listings(
             "source": result.source,
             "label": result.label,
             "distance": result.distance,
+            "produced_by": result.produced_by,
         }
         for result in results
     ]
