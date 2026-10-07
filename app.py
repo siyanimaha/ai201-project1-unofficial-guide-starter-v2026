@@ -211,7 +211,7 @@ def ask_pipeline(
         variant=variant,
     )
     trace.step(
-        "search",
+        "MCP tool call: search_listings",
         inputs={"question": question, "top_k": top_k or config.TOP_K},
         result={"results_found": len(results)},
     )

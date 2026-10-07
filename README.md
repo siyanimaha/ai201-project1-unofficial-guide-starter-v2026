@@ -217,6 +217,17 @@ I added tracing so I could see what happened during each step of the pipeline. F
 - The final answer said that laundry costs $1.75 for a wash and $1.50 for a dry.
 
 This trace helped me see the path from retrieval to the relevance gate and then to generation.
+
+Actual trace output:
+
+```text
+[TRACE] MCP tool call: search_listings
+[TRACE] gate
+[TRACE] model
+[TRACE] model_result
+```
+
+This trace was produced by `app.py::ask_pipeline` using the `--trace` option. It shows the MCP `search_listings` tool call followed by the relevance gate and model generation steps in order.
 ## What's Still Broken
 All five criteria were still met after the improvement, so there were no failed criteria left to fix. One limitation is that the evaluation only uses five test questions from the campus_life corpus. A larger and more varied set of questions would provide stronger evidence that the system works consistently. I stopped here because the current evaluation met all five targets and completed successfully.
 <!-- For each criterion still missed after your fix: what you'd do about it,
