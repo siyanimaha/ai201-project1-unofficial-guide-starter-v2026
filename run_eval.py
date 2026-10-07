@@ -1,3 +1,4 @@
+import time
 #!/usr/bin/env python3
 """
 Run your test questions repeatedly and write the results down.
@@ -117,6 +118,9 @@ def main():
 
             mark = {True: "pass", False: "fail", None: "—"}[passed]
             print(f"  run {run}: {mark}  (best distance {decision.best_distance:.3f})")
+
+            # Avoid exceeding the model's free-tier request-per-minute limit.
+            time.sleep(5)
 
             transcript.append(
                 {
