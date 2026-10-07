@@ -129,7 +129,19 @@ I kept the cutoff at 0.6 because the five in-corpus questions had best distances
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+### Real Output from One Try
 
+Evidence file: `results/run_2026-10-07_0941_before.md`
+
+The answer below was produced by `app.py::ask_pipeline` during the evaluation:
+
+```text
+Question: What food is worth getting at Verrill Street Grill?
+
+The burger is worth going for at Verrill Street Grill, and it is the only late-night hot food on campus.
+
+Source: dining_verrill_street_grill.txt
+```
 ## Verdicts
 
 <!-- MET or MISSED for each of the five, against the target you wrote last
