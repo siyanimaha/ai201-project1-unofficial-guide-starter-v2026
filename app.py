@@ -18,6 +18,7 @@ import sys
 import time
 
 import config
+import trace
 
 
 def cmd_corpora(args):
@@ -209,7 +210,24 @@ def ask_pipeline(
         corpus=corpus or config.CORPUS,
         variant=variant,
     )
+    trace.step(
+        "search",
+        inputs={"question": question, "top_k": top_k or config.TOP_K},
+        result={"results_found": len(results)},
+    )
+
     decision = gate.check(results, threshold=threshold)
+
+    trace.step(
+        "gate",
+        inputs={"threshold": threshold},
+        result={
+            "passed": decision.passed,
+            "best_distance": decision.best_distance,
+            "threshold": decision.threshold,
+        },
+    )
+
     if on_gate is not None:
         on_gate(decision)
 
@@ -231,7 +249,19 @@ def ask_pipeline(
         on_prompt(prompt)
 
     outcome["prompt"] = prompt
+    trace.step(
+        "model",
+        inputs={"question": question, "chunks": len(results)},
+        result="calling answer model",
+    )
+
     outcome["answer"] = answer_from_chunks(question, results)
+
+    trace.step(
+        "model_result",
+        result=outcome["answer"],
+    )
+
     outcome["sources"] = sorted({r.source for r in results})
     return outcome
 
@@ -283,6 +313,8 @@ def _ask_one(
 
 
 def cmd_ask(args):
+    if getattr(args, "trace", False):
+        trace.start()
     corpus = args.corpus or config.CORPUS
     import generate as gen
 
@@ -366,6 +398,11 @@ def build_parser():
     p_ask.add_argument("question", nargs="?")
     p_ask.add_argument("--top-k", type=int)
     p_ask.add_argument("--threshold", type=float, help="override the gate cutoff")
+    p_ask.add_argument(
+        "--trace",
+        action="store_true",
+        help="show each step of the agent loop",
+    )
     p_ask.add_argument(
         "--show-prompt",
         action="store_true",
